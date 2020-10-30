@@ -44,7 +44,7 @@ State_LEHD/
 LEHD_Output/
 
 # Local FIPS .xlsx
-inputs/FIPS_Codes.xlsx
+/inputs/FIPS_Codes.xlsx
 
 # Shapefile
 
