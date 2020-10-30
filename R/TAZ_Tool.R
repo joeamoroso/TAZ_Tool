@@ -70,9 +70,10 @@ if(gen_cswlk){
 
   if(check){
     shp_path <- readline(prompt = 'Enter the Shapefile path or place in inputs/Shapefile and restart: ')
-    shpdir <-  shp_path }
-
+    shpdir <-  shp_path 
+  } else{
   shpdir <- paste0(getwd(),'/inputs/Shapefile','/',f[1])
+  }
   #shpdir <- "Q:/Projects/TN/13184_TNDOT_Statewide_Model/BRIAN_TEMP/BY2010/esri_shp/20140418_draft-v2"
   swtaz <- shapefile(shpdir)
 }
@@ -229,7 +230,11 @@ for(i in 1:length(stlist))
 
   #are there some block centroids that fall outside a zone?
   nrow(cenblkpoints@data[is.na(cenblkpoints$TAZID),])
-
+  
+  if(nrow(cenblkpoints@data[is.na(cenblkpoints$TAZID),]) > 0){
+    print(paste0('There are ',as.character(nrow(cenblkpoints@data[is.na(cenblkpoints$TAZID),])),'Block centroids that fall outside a TAZ.'))
+  }
+ 
   outf <- file.path(ddir,paste0(st,"_cenblkcorr_","tnswtaz.csv"))
   write.csv(cenblkpoints@data,outf,row.names=F)
 }
@@ -554,6 +559,11 @@ ACS <- TOT_POP %>%
  
  crosswalk$SHARE <- crosswalk$CENSUSHH / crosswalk$TOT_OCC_HH
  crosswalk$SHARE <- ifelse(is.infinite(crosswalk$SHARE) | is.nan(crosswalk$SHARE),0,crosswalk$SHARE)
+ 
+ # Output crosswalk with shares/ hhs to outputs # 
+ if(gen_cswlk){
+   write_csv(crosswalk,file.path('outputs/Crosswalk_File.csv'))
+ }
  
  # Join LEHD Block Level to crosswalk file # 
  land_use <- crosswalk %>% 
