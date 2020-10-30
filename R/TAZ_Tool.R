@@ -35,7 +35,7 @@ getwd()
 
 # Setting API key if blank # 
 census_key = "b5cba8b05f656a75ac81af2be41283c07bca97bd"
-tidycensus::census_api_key(key = census_key, install = T)
+tidycensus::census_api_key(key = census_key, install = T,overwrite = T)
 
 #Inputs
 #------
@@ -65,14 +65,21 @@ if( dl_flag == 'Y' | dl_flag == 'y'){
 }
 
 if(gen_cswlk){
-shp_path <- readline(prompt = 'Enter the Shapefile path: ')
-shpdir <-  shp_path
-#shpdir <- "Q:/Projects/TN/13184_TNDOT_Statewide_Model/BRIAN_TEMP/BY2010/esri_shp/20140418_draft-v2"
-swtaz <- shapefile(shpdir)
+  f <- list.files(paste0(getwd(),'/inputs/Shapefile'),pattern = '*.shp')
+  check <- is_empty(f)
+
+  if(check){
+    shp_path <- readline(prompt = 'Enter the Shapefile path or place in inputs/Shapefile and restart: ')
+    shpdir <-  shp_path }
+
+  shpdir <- paste0(getwd(),'/inputs/Shapefile','/',f[1])
+  #shpdir <- "Q:/Projects/TN/13184_TNDOT_Statewide_Model/BRIAN_TEMP/BY2010/esri_shp/20140418_draft-v2"
+  swtaz <- shapefile(shpdir)
 }
 
 census_year <- readline(prompt = 'Enter the Decennial Census Year (Hint: Probably 2010): ')
 acs_year <- readline(prompt = 'Enter the ACS Year: ')
+lehd_year <- readline(prompt = 'Enter the LEHD Year (skip 2011-2012): ')
 
 #List of states that the statewide model zones cover
 
@@ -97,26 +104,30 @@ baseblkurl <- paste0("ftp://ftp2.census.gov/geo/tiger/TIGER",census_year,"/TABBL
 
 # Create Output Directories if they don't exist ---------------------- 
 
-if(!dir.exists("State_LEHD")){
-  
-  dir.create('State_LEHD')
+if(!dir.exists('outputs')){
+  dir.create('outputs')
 }
 
-if(!dir.exists("State_Block")){
+if(!dir.exists("outputs/State_LEHD")){
   
-  dir.create('State_Block')
+  dir.create('outputs/State_LEHD')
 }
 
-if(!dir.exists("LEHD_Output")){
+if(!dir.exists("outputs/State_Block")){
   
-  dir.create('LEHD_Output')
+  dir.create('outputs/State_Block')
+}
+
+if(!dir.exists("outputs/LEHD_Output")){
+  
+  dir.create('outputs/LEHD_Output')
 }
 
 
 # Output directories and functions ----------
-destdir_base <- "State_LEHD"
-destblk_base <- "State_Block"
-outbasedir <- "LEHD_Output"
+destdir_base <- "outputs/State_LEHD"
+destblk_base <- "outputs/State_Block"
+outbasedir <- "outputs/LEHD_Output"
 
 # File download  # 
 downloadOD <- function(durl,dfile)
@@ -150,17 +161,17 @@ if(download_data)
       dir.create(ddir,showWarnings = T)
     
     
-    fname <- paste0(st,"_wac_S000_JT00_",census_year,".csv.gz")
+    fname <- paste0(st,"_wac_S000_JT00_",lehd_year,".csv.gz")
     current_url <- paste(baseurl,st,"wac",fname,sep="/")
     download.file(current_url,file.path(ddir_wac,fname))
     gunzip(file.path(ddir_wac,fname),remove = T)
     
-    fname <- paste0(st,"_wac_S000_JT03_",census_year,".csv.gz")
+    fname <- paste0(st,"_wac_S000_JT03_",lehd_year,".csv.gz")
     current_url <- paste(baseurl,st,"wac",fname,sep="/")
     download.file(current_url,file.path(ddir_wac,fname))
     gunzip(file.path(ddir_wac,fname),remove = T)
     
-    fname <- paste0(st,"_wac_S000_JT04_",census_year,".csv.gz")
+    fname <- paste0(st,"_wac_S000_JT04_",lehd_year,".csv.gz")
     current_url <- paste(baseurl,st,"wac",fname,sep="/")
     download.file(current_url,file.path(ddir_wac,fname))
     gunzip(file.path(ddir_wac,fname),remove = T)
@@ -602,9 +613,9 @@ ACS <- TOT_POP %>%
  output <- readline('Do you want a CSV or XLSX file? (CSV/XLSX): ')
  
  if(output == 'XLSX' | output == 'xlsx'){
- write_xlsx(land_use_taz,paste0('TN_',acs_year,'_TAZ.xlsx'))
+ write_xlsx(land_use_taz,paste0('outputs/','TN_',acs_year,'_TAZ.xlsx'))
  } else{
-   write_csv(land_use_taz,paste0('TN_',acs_year,'_TAZ.csv'))
+   write_csv(land_use_taz,paste0('outputs/','TN_',acs_year,'_TAZ.csv'))
  }
  
  #####################################################################################################################################
