@@ -45,3 +45,4 @@ LEHD_Output/
 
 # Local FIPS .xlsx
 /inputs/FIPS_Codes.xlsx
+/inputs/Shapefile/
