@@ -9,6 +9,13 @@
 #-----------------------------------------------------------------------------------
 # Packages 
 #-----------------------------------------------------------------------------------
+# Checking for and installing packages if necessary # 
+
+list.of.packages <- c("tidyverse", "tidycensus","rgdal","rgeos","RCurl","reshape","data.table","R.utils","raster","readxl","writexl")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+
+# Attach packages #
 library(tidyverse)
 library(tidycensus)
 library(rgdal)
@@ -18,13 +25,18 @@ library(reshape)
 library(data.table)
 library(R.utils)
 library(raster)
-library(tidyverse)
 library(readxl)
 library(writexl)
-library(R.utils)
 
 #setwd("C:/Users/joe.amoroso/TDOT Counts/Census_Data")
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 setwd("..")
+getwd()
+
+# Setting API key if blank # 
+census_key = "b5cba8b05f656a75ac81af2be41283c07bca97bd"
+tidycensus::census_api_key(key = census_key, install = T)
+
 #Inputs
 #------
 #Statewide Model TAZ Shapefile
@@ -587,11 +599,13 @@ ACS <- TOT_POP %>%
  
  
  # Write new TAZ landuse to EXcel file, or CSV # 
+ output <- readline('Do you want a CSV or XLSX file? (CSV/XLSX): ')
  
- write_xlsx(land_use_taz,'TN_2010_TAZ.xlsx')
- 
- 
-
+ if(output == 'XLSX' | output == 'xlsx'){
+ write_xlsx(land_use_taz,paste0('TN_',acs_year,'_TAZ.xlsx'))
+ } else{
+   write_csv(land_use_taz,paste0('TN_',acs_year,'_TAZ.csv'))
+ }
  
  #####################################################################################################################################
  # pop_emp <- ACS_2018_5YR_Populaton %>% 
