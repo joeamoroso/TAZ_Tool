@@ -47,7 +47,7 @@ LEHD_Output/
 /inputs/FIPS_Codes.xlsx
 
 # Shapefile
-
+inputs/Shapefile/*
 
 # Outputs
 outputs/
