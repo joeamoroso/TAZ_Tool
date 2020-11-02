@@ -1,7 +1,7 @@
 
 # This script processes LEHD work location data and Census ACS (tidycensus API)
-# and aggregates the employment to TAZs in a given shapefile
-# for odd years not in the decennial census
+# and aggregates the employment to TAZs with a given input shapefile
+# for years not in the decennial census
 
 # Author: bhargava.sana, updated by Joe Amoroso
 ###############################################################################
@@ -110,17 +110,14 @@ if(!dir.exists('outputs')){
 }
 
 if(!dir.exists("outputs/State_LEHD")){
-  
   dir.create('outputs/State_LEHD')
 }
 
 if(!dir.exists("outputs/State_Block")){
-  
   dir.create('outputs/State_Block')
 }
 
 if(!dir.exists("outputs/LEHD_Output")){
-  
   dir.create('outputs/LEHD_Output')
 }
 
@@ -240,8 +237,11 @@ for(i in 1:length(stlist))
 }
 }
 
-
-cwk <- readline(prompt = 'Do you walk to input a Crosswalk file? (Y/N): ')
+if(!gen_cswlk){
+  cwk <- readline(prompt = 'Do you walk to input a Crosswalk file? (Y/N): ')
+} else{
+  cwk <- 'N'
+}
 
 if(cwk == 'Y' | cwk == 'y'){
   cwk_path <- readline(prompt = 'Please enter a CSV file path: ')
@@ -253,8 +253,6 @@ if(cwk == 'Y' | cwk == 'y'){
   
     allcorr <- cwk_file
   } else{
-  
-
 #Read in the block-TAZ correspondences
     allcorr <- data.table()
     for(i in 1:length(stlist)){
@@ -282,7 +280,6 @@ if(cwk == 'Y' | cwk == 'y'){
   
 }
 
-
 # Get Tract Correlation from Block LEHD Correlation # 
 # bgcorr <- allcorr %>% 
 #   mutate(GEOID10 = substr(GEOID10,1,12)) %>% # GEOID for Census Block Groups are 12 digits, Blocks are 15 #
@@ -291,7 +288,7 @@ if(cwk == 'Y' | cwk == 'y'){
   
 # Gather ACS Variables --------------
 
-v10 <- load_variables(acs_year, "acs5", cache = FALSE)
+#v10 <- load_variables(acs_year, "acs5", cache = FALSE)
 
 sf1 <- function(states){
  
@@ -563,7 +560,7 @@ ACS <- TOT_POP %>%
  # Output crosswalk with shares/ hhs to outputs # 
  if(gen_cswlk){
    write_csv(crosswalk,file.path('outputs/Crosswalk_File.csv'))
- }
+ } 
  
  # Join LEHD Block Level to crosswalk file # 
  land_use <- crosswalk %>% 
